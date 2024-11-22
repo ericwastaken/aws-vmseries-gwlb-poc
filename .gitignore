@@ -37,3 +37,6 @@ tests/
 
 # Miscellaneous files
 .DS_Store
+
+# Ignore the secrets file
+/terraform/vmseries/secrets.auto.tfvars

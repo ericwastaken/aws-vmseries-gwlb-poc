@@ -45,4 +45,6 @@ variable "prefix-name-tag"  { default = "" }
 variable "global_tags"      { default = {} }
 variable "access-key"       { default = "" }
 variable "secret-key"       { default = "" }
+variable "session-token"    { default = "" }
 variable "region"           { default = "" }
+variable "ssh-key-name"     { default = "" }

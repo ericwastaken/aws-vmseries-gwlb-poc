@@ -9,6 +9,9 @@ This code helps deploy all the resources required to successfully demonstrate th
 - Permissions to subscribe to VM-Series on the AWS Marketplace.
 - Permissions to deploy all networking resources like VPC, Subnets, etc.
 - Permissions to deploy EC2 instances and connect to them via SSH.
+- Five (5) available Elastic IP in your quota (by default, accounts have a quota of 5, if you're using any separate from this lab, you'll need to increase your quote before running this).
+- If running from a local workspace, either a macOS or GNU Linux environment is required (alternatively, you can use AWS CloudShell).
+- If on macOS, Homebrew installed.
 
 ## Demo Lab Setup
 
@@ -17,7 +20,9 @@ In this section, we will launch the lab environment. These are the steps that we
 - Login to the AWS Console using the provided credentials and set up IAM roles
 - Subscribe to the Palo Alto Networks VM-Series PAYG on the AWS Marketplace.
    - You can follow this link to open the Marketplace page directly. On the page that opens up, Click on “Continue to Subscribe” and then Click on “Accept Terms”.<br/>https://aws.amazon.com/marketplace/pp?sku=hd44w1chf26uv4p52cdynb2o
-- Deploy lab environment using Terraform
+- If you do not have room for 4 more Elastic IPs, request an increase in the Elastic IP service quota to add 5 more. ([In the service quotas, under EC2](https://us-east-1.console.aws.amazon.com/servicequotas/home/services/ec2/quotas), search for "EC2-VPC Elastic IPs".)
+- Create a new SSH key pair in the AWS console. Enter the name of they key in the environment variables below.
+- Deploy lab environment using Terraform (via the setup.sh script).
 
 ### Cloning the Git Repo
 
@@ -35,6 +40,7 @@ If you are attempting to deploy from your local workspace, you would need to upd
 ```
 access-key      = ""
 secret-key      = ""
+session-token   = ""
 region          = ""
 ssh-key-name    = ""
 ```
@@ -43,7 +49,9 @@ In case you are using AWS CloudShell, you can ignore this step.
 
 ### Run the setup
 
-Once you have completed the above steps as required, ensure that you are in the root directory of the cloned repo and run the below command.
+Once you have completed the above steps as required, ensure that you are in the root directory of the cloned repo and run the below command. 
+
+> **NOTE:** Running this script WILL INSTALL other dependencies!
 
 ```
 ./setup.sh
@@ -54,6 +62,7 @@ It will take around 5 minutes to deploy all the lab components. Status will be u
 ## Demo Lab Teardown
 
 Ensure that you have the permissions to delete all the resources that were created as part of the setup. Adjust the "cd" command below to change the directory as required.
+
 Run the below commands to teardown the setup.
 
 ```
@@ -61,9 +70,29 @@ cd ~/aws-vmseries-gwlb-poc/terraform/vmseries
 terraform destroy -auto-approve
 ```
 
+## Connecting to the Palo Alto Networks VM-Series Firewall
+
+Before connecting to the web console of the Palo Alto Networks VM-Series Firewall, you need to set up the password for the admin user. You can do this by connecting to the firewall using SSH and running the below command.
+
+1. ssh to the ip address of the firewall (from the terraform output) `ssh -i /path/to/ssh-key.pem admin@<firewall-ip>`
+2. Run the below command to set the password for the admin user.
+
+```bash
+set mgt-config users admin password
+```
+
+After an admin password is set, you can access the web interface at https://<firewall-ip> with the username as "admin" and the password that you set.
+
+# TODO: Explain better how to use the Firewall web interface for verifying the configuration.
+
 ## Connecting to the app servers
 
-We will be using the user ‘ec2-user’ as the username to login to these applications.
+We will be using the user ‘ec2-user’ as the username to login to these applications. Use the SSH key that you provided in the environment variables.
+
+You can also verify the app server (vulnerable web server) are up with:
+http://<elastic-ip>:8080 (vulnerable web server)
+
+# TODO: Explain better the role of the "Attack" and "Vulnerable" servers and how to test with them.
 
 ### On the AWS CloudShell
 

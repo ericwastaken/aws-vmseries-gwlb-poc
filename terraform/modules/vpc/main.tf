@@ -152,10 +152,7 @@ data "aws_ami" "latest_ecs" {
 }
 
 data "aws_key_pair" "key_name" {
-  filter {
-    name = "key-name"
-    values = ["qwikLABS-*"]
-  }
+  key_name = var.ssh-key-name
 }
 
 resource "aws_network_interface" "private" {
